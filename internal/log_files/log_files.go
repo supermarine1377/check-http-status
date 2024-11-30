@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/supermarine1377/monitoring-scripts/go/check-http-status/timeutil"
+	"github.com/supermarine1377/check-http-status/timeutil"
 )
 
 func New(createLogFile bool) ([]io.Writer, error) {

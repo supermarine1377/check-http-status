@@ -1,4 +1,4 @@
-module github.com/supermarine1377/monitoring-scripts/go/check-http-status
+module github.com/supermarine1377/check-http-status
 
 go 1.23
 

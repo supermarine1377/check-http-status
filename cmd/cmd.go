@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/supermarine1377/monitoring-scripts/go/check-http-status/internal/http_status"
-	"github.com/supermarine1377/monitoring-scripts/go/check-http-status/internal/log_files"
+	"github.com/supermarine1377/check-http-status/internal/http_status"
+	"github.com/supermarine1377/check-http-status/internal/log_files"
 )
 
 // rootCmd represents the base command when called without any subcommands

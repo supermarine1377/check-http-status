@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/supermarine1377/monitoring-scripts/go/check-http-status/timeutil"
+	"github.com/supermarine1377/check-http-status/timeutil"
 )
 
 type Monitorer struct {
