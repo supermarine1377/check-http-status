@@ -79,6 +79,7 @@ func Execute() {
 const INTERVAL_SECONDS = "interval-seconds"
 const INTERVAL_SECONDS_SHORTHAND = "i"
 const DEFAULT_INTERVAL_SECONDS = 60
+const DEFAULT_INTERVAL_SECONDS = 10
 
 const CREATE_LOG_FILE = "create-log-file"
 const CREATE_LOG_FILE_SHORTHAND = "c"
