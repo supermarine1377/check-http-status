@@ -22,6 +22,7 @@ var rootCmd = &cobra.Command{
 	Flags:
 		-i, --interval-seconds (int): Interval in seconds between regular HTTP requests to monitor the website. Default: 60
 		-c, --create-log-file (bool): Create log file. Default: false
+		-ts --timeout_seconds (int): Timeout in seconds for each HTTP request. If a response is not received within the specified time, the request will be considered failed. Default: 30
 	Example:
 		check-http-status https://example.com -i 30 -c
 	`,
@@ -54,13 +55,19 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		timeoutSeconds, err := cmd.Flags().GetInt(TIMEOUT_SECONDS)
+		if err != nil {
+			fmt.Fprintln(cmd.OutOrStderr(), err)
+			os.Exit(1)
+		}
+
 		m := http_status.NewMonitorer(targetURL, intervalSeconds, logFile)
 		ctx, stop := signal.NotifyContext(
 			context.Background(),
 			os.Interrupt,
 		)
 		defer stop()
-		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		ctx, cancel := context.WithTimeout(ctx, time.Duration(timeoutSeconds)*time.Second)
 		defer cancel()
 
 		m.Do(ctx)
@@ -78,11 +85,15 @@ func Execute() {
 
 const INTERVAL_SECONDS = "interval-seconds"
 const INTERVAL_SECONDS_SHORTHAND = "i"
-const DEFAULT_INTERVAL_SECONDS = 60
+const DEFAULT_INTERVAL_SECONDS = 10
 
 const CREATE_LOG_FILE = "create-log-file"
 const CREATE_LOG_FILE_SHORTHAND = "c"
 const DEFAULT_CREATE_LOG_FILE = false
+
+const TIMEOUT_SECONDS = "timeout-seconds"
+const TIMEOUT_SECONDS_SHORTHAND = "t"
+const DEFAULT_TIMEOUT_SECONDS = 30
 
 func init() {
 	// Here you will define your flags and configuration settings.
@@ -106,5 +117,12 @@ func init() {
 		CREATE_LOG_FILE_SHORTHAND,
 		DEFAULT_CREATE_LOG_FILE,
 		"create a file to log results. In default log file won't be created. Log file name format: check-http-status_<timestamp>.log",
+	)
+
+	rootCmd.Flags().IntP(
+		TIMEOUT_SECONDS,
+		TIMEOUT_SECONDS_SHORTHAND,
+		DEFAULT_TIMEOUT_SECONDS,
+		"timeout in seconds for each HTTP request. If a response is not received within the specified time, the request will be considered failed.",
 	)
 }
