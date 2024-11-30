@@ -11,6 +11,15 @@
 
 ## Installation
 
+### Install via `go install`
+You can install the command directly using `go install`:
+```bash
+go install github.com/supermarine1377/check-http-status@latest
+```
+Ensure your `GOPATH/bin` is in your system's `PATH` to run the command directly.
+
+### Build from Source
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/supermarine1377/monitoring-scripts.git
