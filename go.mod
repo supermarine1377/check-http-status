@@ -1,6 +1,6 @@
 module github.com/supermarine1377/monitoring-scripts/go/check-http-status
 
-go 1.19
+go 1.23
 
 require github.com/spf13/cobra v1.8.0
 

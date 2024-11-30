@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/supermarine1377/monitoring-scripts/go/check-http-status/internal/http_status"
@@ -53,7 +55,13 @@ var rootCmd = &cobra.Command{
 		}
 
 		m := http_status.NewMonitorer(targetURL, intervalSeconds, logFile)
-		ctx := context.Background()
+		ctx, stop := signal.NotifyContext(
+			context.Background(),
+			os.Interrupt,
+		)
+		defer stop()
+		ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		defer cancel()
 
 		m.Do(ctx)
 	},
