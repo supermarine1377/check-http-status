@@ -19,12 +19,6 @@ import (
 var rootCmd = &cobra.Command{
 	Use: `
 	check-http-status <URL> [flags]
-	Flags:
-		-i, --interval-seconds (int): Interval in seconds between regular HTTP requests to monitor the website. Default: 60
-		-c, --create-log-file (bool): Create log file. Default: false
-		-ts --timeout_seconds (int): Timeout in seconds for each HTTP request. If a response is not received within the specified time, the request will be considered failed. Default: 30
-	Example:
-		check-http-status https://example.com -i 30 -c
 	`,
 	Short: "Monitors the HTTP status code of a specified website at regular intervals.",
 	Long:  `Monitors the HTTP status code of a specified website at regular intervals.`,
