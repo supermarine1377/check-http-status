@@ -41,6 +41,7 @@ func NewOptions(flags Flags) (*Options, error) {
 type Flags interface {
 	IntervalSeconds() int
 	CreateLogFile() bool
+	TimeoutSeconds() int
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -62,6 +63,8 @@ Loop:
 }
 
 func (m *Monitorer) result(ctx context.Context) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(m.TimeoutSeconds())*time.Second)
+	defer cancel()
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,

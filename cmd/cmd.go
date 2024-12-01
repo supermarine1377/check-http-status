@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/supermarine1377/check-http-status/cmd/flags"
@@ -49,11 +48,6 @@ var rootCmd = &cobra.Command{
 			os.Interrupt,
 		)
 		defer stop()
-		ctx, cancel := context.WithTimeout(
-			ctx,
-			time.Duration(flags.TimeoutSeconds())*time.Second,
-		)
-		defer cancel()
 
 		m.Do(ctx)
 	},
