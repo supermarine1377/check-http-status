@@ -11,9 +11,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/supermarine1377/check-http-status/internal/http_status"
-	"github.com/supermarine1377/check-http-status/internal/log_files"
 	"github.com/supermarine1377/check-http-status/cmd/flags"
+	"github.com/supermarine1377/check-http-status/internal/monitorer"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -38,20 +37,18 @@ var rootCmd = &cobra.Command{
 			fmt.Fprintln(cmd.OutOrStderr(), err)
 			os.Exit(1)
 		}
-
-		timeoutSeconds, err := cmd.Flags().GetInt(TIMEOUT_SECONDS)
+		options, err := monitorer.NewOptions(flags)
 		if err != nil {
 			fmt.Fprintln(cmd.OutOrStderr(), err)
 			os.Exit(1)
 		}
 
-		m := http_status.NewMonitorer(targetURL, intervalSeconds, logFile)
+		m := monitorer.New(targetURL, flags, options)
 		ctx, stop := signal.NotifyContext(
 			context.Background(),
 			os.Interrupt,
 		)
 		defer stop()
-		ctx, cancel := context.WithTimeout(ctx, time.Duration(timeoutSeconds)*time.Second)
 		ctx, cancel := context.WithTimeout(
 			ctx,
 			time.Duration(flags.TimeoutSeconds())*time.Second,
@@ -70,7 +67,6 @@ func Execute() {
 		os.Exit(1)
 	}
 }
-
 
 func init() {
 	// Here you will define your flags and configuration settings.
