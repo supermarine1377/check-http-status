@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/supermarine1377/check-http-status/internal/http_status"
-	"github.com/supermarine1377/check-http-status/internal/log_files"
+	"github.com/supermarine1377/check-http-status/cmd/flags"
+	"github.com/supermarine1377/check-http-status/internal/monitorer"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -31,37 +31,28 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		targetURL := args[0]
-		intervalSeconds, err := cmd.Flags().GetInt(INTERVAL_SECONDS)
+
+		flags, err := flags.Parse(cmd)
+		if err != nil {
+			fmt.Fprintln(cmd.OutOrStderr(), err)
+			os.Exit(1)
+		}
+		options, err := monitorer.NewOptions(flags)
 		if err != nil {
 			fmt.Fprintln(cmd.OutOrStderr(), err)
 			os.Exit(1)
 		}
 
-		createLogFile, err := cmd.Flags().GetBool(CREATE_LOG_FILE)
-		if err != nil {
-			fmt.Fprintln(cmd.OutOrStderr(), err)
-			os.Exit(1)
-		}
-
-		logFile, err := log_files.New(createLogFile)
-		if err != nil {
-			fmt.Fprintln(cmd.OutOrStderr(), err)
-			os.Exit(1)
-		}
-
-		timeoutSeconds, err := cmd.Flags().GetInt(TIMEOUT_SECONDS)
-		if err != nil {
-			fmt.Fprintln(cmd.OutOrStderr(), err)
-			os.Exit(1)
-		}
-
-		m := http_status.NewMonitorer(targetURL, intervalSeconds, logFile)
+		m := monitorer.New(targetURL, flags, options)
 		ctx, stop := signal.NotifyContext(
 			context.Background(),
 			os.Interrupt,
 		)
 		defer stop()
-		ctx, cancel := context.WithTimeout(ctx, time.Duration(timeoutSeconds)*time.Second)
+		ctx, cancel := context.WithTimeout(
+			ctx,
+			time.Duration(flags.TimeoutSeconds())*time.Second,
+		)
 		defer cancel()
 
 		m.Do(ctx)
@@ -77,18 +68,6 @@ func Execute() {
 	}
 }
 
-const INTERVAL_SECONDS = "interval-seconds"
-const INTERVAL_SECONDS_SHORTHAND = "i"
-const DEFAULT_INTERVAL_SECONDS = 10
-
-const CREATE_LOG_FILE = "create-log-file"
-const CREATE_LOG_FILE_SHORTHAND = "c"
-const DEFAULT_CREATE_LOG_FILE = false
-
-const TIMEOUT_SECONDS = "timeout-seconds"
-const TIMEOUT_SECONDS_SHORTHAND = "t"
-const DEFAULT_TIMEOUT_SECONDS = 30
-
 func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -100,23 +79,23 @@ func init() {
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.Flags().IntP(
-		INTERVAL_SECONDS,
-		INTERVAL_SECONDS_SHORTHAND,
-		DEFAULT_INTERVAL_SECONDS,
+		flags.INTERVAL_SECONDS,
+		flags.INTERVAL_SECONDS_SHORTHAND,
+		flags.DEFAULT_INTERVAL_SECONDS,
 		"interval_seconds are interval time between monitoring HTTP requests.",
 	)
 
 	rootCmd.Flags().BoolP(
-		CREATE_LOG_FILE,
-		CREATE_LOG_FILE_SHORTHAND,
-		DEFAULT_CREATE_LOG_FILE,
+		flags.CREATE_LOG_FILE,
+		flags.CREATE_LOG_FILE_SHORTHAND,
+		flags.DEFAULT_CREATE_LOG_FILE,
 		"create a file to log results. In default log file won't be created. Log file name format: check-http-status_<timestamp>.log",
 	)
 
 	rootCmd.Flags().IntP(
-		TIMEOUT_SECONDS,
-		TIMEOUT_SECONDS_SHORTHAND,
-		DEFAULT_TIMEOUT_SECONDS,
+		flags.TIMEOUT_SECONDS,
+		flags.TIMEOUT_SECONDS_SHORTHAND,
+		flags.DEFAULT_TIMEOUT_SECONDS,
 		"timeout in seconds for each HTTP request. If a response is not received within the specified time, the request will be considered failed.",
 	)
 }

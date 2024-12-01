@@ -1,4 +1,4 @@
-package http_status
+package monitorer
 
 import (
 	"context"
@@ -6,23 +6,41 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/supermarine1377/check-http-status/internal/log_files"
 	"github.com/supermarine1377/check-http-status/timeutil"
 )
 
 type Monitorer struct {
-	httpClient      *http.Client
-	targetURL       string
-	intervalSeconds int
-	files           []io.Writer
+	httpClient *http.Client
+	targetURL  string
+	Flags
+	*Options
 }
 
-func NewMonitorer(targetURL string, intervalSeconds int, files []io.Writer) *Monitorer {
+func New(targetURL string, Flags Flags, options *Options) *Monitorer {
 	return &Monitorer{
-		httpClient:      http.DefaultClient,
-		targetURL:       targetURL,
-		intervalSeconds: intervalSeconds,
-		files:           files,
+		httpClient: http.DefaultClient,
+		targetURL:  targetURL,
+		Flags:      Flags,
+		Options:    options,
 	}
+}
+
+type Options struct {
+	files []io.Writer
+}
+
+func NewOptions(flags Flags) (*Options, error) {
+	files, err := log_files.New(flags.CreateLogFile())
+	if err != nil {
+		return nil, err
+	}
+	return &Options{files: files}, nil
+}
+
+type Flags interface {
+	IntervalSeconds() int
+	CreateLogFile() bool
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -38,7 +56,7 @@ Loop:
 				continue
 			}
 			m.logln(r)
-			time.Sleep(time.Second * time.Duration(m.intervalSeconds))
+			time.Sleep(time.Second * time.Duration(m.IntervalSeconds()))
 		}
 	}
 }
@@ -47,7 +65,8 @@ func (m *Monitorer) result(ctx context.Context) (string, error) {
 	req, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		m.targetURL, nil,
+		m.targetURL,
+		nil,
 	)
 	if err != nil {
 		return "", err
