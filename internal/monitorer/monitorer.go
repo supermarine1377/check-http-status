@@ -7,27 +7,30 @@ import (
 	"time"
 
 	"github.com/supermarine1377/check-http-status/internal/log_files"
+	"github.com/supermarine1377/check-http-status/internal/monitorer/sleeper"
 	"github.com/supermarine1377/check-http-status/timeutil"
 )
 
 type Monitorer struct {
 	httpClient *http.Client
 	targetURL  string
-	Flags
 	*Options
+	Sleeper
 }
 
-func New(targetURL string, Flags Flags, options *Options) *Monitorer {
+func New(targetURL string, options *Options) *Monitorer {
+	d := time.Second * time.Duration(options.IntervalSeconds())
 	return &Monitorer{
 		httpClient: http.DefaultClient,
 		targetURL:  targetURL,
-		Flags:      Flags,
 		Options:    options,
+		Sleeper:    sleeper.New(d),
 	}
 }
 
 type Options struct {
 	files []io.Writer
+	Flags
 }
 
 func NewOptions(flags Flags) (*Options, error) {
@@ -35,13 +38,20 @@ func NewOptions(flags Flags) (*Options, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Options{files: files}, nil
+	return &Options{
+		files: files,
+		Flags: flags,
+	}, nil
 }
 
 type Flags interface {
 	IntervalSeconds() int
 	CreateLogFile() bool
 	TimeoutSeconds() int
+}
+
+type Sleeper interface {
+	Sleep()
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -57,7 +67,7 @@ Loop:
 				continue
 			}
 			m.logln(r)
-			time.Sleep(time.Second * time.Duration(m.IntervalSeconds()))
+			m.Sleep()
 		}
 	}
 }

@@ -42,7 +42,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		m := monitorer.New(targetURL, flags, options)
+		m := monitorer.New(targetURL, options)
 		ctx, stop := signal.NotifyContext(
 			context.Background(),
 			os.Interrupt,
