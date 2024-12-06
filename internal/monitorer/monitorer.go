@@ -12,16 +12,16 @@ import (
 )
 
 type Monitorer struct {
-	httpClient *http.Client
+	httpClient HTTPClient
 	targetURL  string
 	*Options
 	Sleeper
 }
 
-func New(targetURL string, options *Options) *Monitorer {
+func New(client HTTPClient, targetURL string, options *Options) *Monitorer {
 	d := time.Second * time.Duration(options.IntervalSeconds())
 	return &Monitorer{
-		httpClient: http.DefaultClient,
+		httpClient: client,
 		targetURL:  targetURL,
 		Options:    options,
 		Sleeper:    sleeper.New(d),
@@ -52,6 +52,10 @@ type Flags interface {
 
 type Sleeper interface {
 	Sleep()
+}
+
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
 }
 
 func (m *Monitorer) Do(ctx context.Context) {

@@ -6,6 +6,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 
@@ -42,7 +43,7 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		m := monitorer.New(targetURL, options)
+		m := monitorer.New(http.DefaultClient, targetURL, options)
 		ctx, stop := signal.NotifyContext(
 			context.Background(),
 			os.Interrupt,
