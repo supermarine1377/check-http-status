@@ -44,6 +44,7 @@ func NewOptions(flags Flags) (*Options, error) {
 	}, nil
 }
 
+//go:generate mockgen -source=$GOFILE -package=mock -destination=mock/mock.go
 type Flags interface {
 	IntervalSeconds() int
 	CreateLogFile() bool
@@ -77,7 +78,10 @@ Loop:
 }
 
 func (m *Monitorer) result(ctx context.Context) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(m.TimeoutSeconds())*time.Second)
+	ctx, cancel := context.WithTimeout(
+		ctx,
+		time.Duration(m.TimeoutSeconds())*time.Second,
+	)
 	defer cancel()
 	req, err := http.NewRequestWithContext(
 		ctx,
@@ -94,7 +98,7 @@ func (m *Monitorer) result(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	s := t + res.Status
+	s := t + " " + res.Status
 	return s, nil
 }
 
