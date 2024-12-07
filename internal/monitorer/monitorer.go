@@ -12,16 +12,16 @@ import (
 )
 
 type Monitorer struct {
-	httpClient *http.Client
+	httpClient HTTPClient
 	targetURL  string
 	*Options
 	Sleeper
 }
 
-func New(targetURL string, options *Options) *Monitorer {
+func New(client HTTPClient, targetURL string, options *Options) *Monitorer {
 	d := time.Second * time.Duration(options.IntervalSeconds())
 	return &Monitorer{
-		httpClient: http.DefaultClient,
+		httpClient: client,
 		targetURL:  targetURL,
 		Options:    options,
 		Sleeper:    sleeper.New(d),
@@ -44,6 +44,7 @@ func NewOptions(flags Flags) (*Options, error) {
 	}, nil
 }
 
+//go:generate mockgen -source=$GOFILE -package=mock -destination=mock/mock.go
 type Flags interface {
 	IntervalSeconds() int
 	CreateLogFile() bool
@@ -52,6 +53,10 @@ type Flags interface {
 
 type Sleeper interface {
 	Sleep()
+}
+
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -73,7 +78,10 @@ Loop:
 }
 
 func (m *Monitorer) result(ctx context.Context) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Duration(m.TimeoutSeconds())*time.Second)
+	ctx, cancel := context.WithTimeout(
+		ctx,
+		time.Duration(m.TimeoutSeconds())*time.Second,
+	)
 	defer cancel()
 	req, err := http.NewRequestWithContext(
 		ctx,
@@ -90,7 +98,7 @@ func (m *Monitorer) result(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	s := t + res.Status
+	s := t + " " + res.Status
 	return s, nil
 }
 
