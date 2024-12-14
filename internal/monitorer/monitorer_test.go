@@ -3,13 +3,17 @@ package monitorer
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/supermarine1377/check-http-status/internal/models"
 	"github.com/supermarine1377/check-http-status/internal/monitorer/mock"
+	"github.com/supermarine1377/check-http-status/timectx/timectxtest"
 	"go.uber.org/mock/gomock"
 )
+
+var now = time.Date(2024, time.December, 14, 0, 0, 0, 0, time.Local)
 
 const targetURL = "https://localhost"
 
@@ -34,7 +38,7 @@ func TestMonitorer_result(t *testing.T) {
 				}
 				mc.EXPECT().Get(gomock.Any(), req).Return(res, nil)
 			},
-			want:    "",
+			want:    "2024-12-14_00-00-00 200 OK",
 			wantErr: false,
 		},
 	}
@@ -48,12 +52,14 @@ func TestMonitorer_result(t *testing.T) {
 			prepareMockFlags(flags)
 
 			m := New(mc, nil, nil, targetURL, flags)
-			got, err := m.result(context.Background())
+			ctx := timectxtest.WithFixedNow(t, context.Background(), now)
+
+			got, err := m.result(ctx)
 			if !tt.wantErr {
 				require.NoError(t, err)
 			}
 
-			assert.Contains(t, got, "200 OK")
+			assert.Equal(t, got, tt.want)
 		})
 	}
 }
