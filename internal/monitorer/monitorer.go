@@ -76,7 +76,7 @@ func (m *Monitorer) result(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	t := timectx.NowStr()
+	t := timectx.NowStr(ctx)
 	s := t + " " + res.Status
 	return s, nil
 }
