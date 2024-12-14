@@ -1,10 +1,11 @@
 package logger
 
 import (
+	"context"
 	"io"
 	"os"
 
-	"github.com/supermarine1377/check-http-status/timeutil"
+	"github.com/supermarine1377/check-http-status/timectx"
 )
 
 type Logger struct {
@@ -16,7 +17,7 @@ func New(createLogFile bool) (*Logger, error) {
 	files = append(files, os.Stdout)
 
 	if createLogFile {
-		logFile, err := os.Create(fileName())
+		logFile, err := os.Create(fileName(context.Background()))
 		if err != nil {
 			return nil, err
 		}
@@ -33,6 +34,6 @@ func (l *Logger) Logln(s string) {
 	}
 }
 
-func fileName() string {
-	return "check-http-status_" + timeutil.NowStr() + ".log"
+func fileName(ctx context.Context) string {
+	return "check-http-status_" + timectx.NowStr(ctx) + ".log"
 }
