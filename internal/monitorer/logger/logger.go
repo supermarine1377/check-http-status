@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/supermarine1377/check-http-status/timeutil"
+	"github.com/supermarine1377/check-http-status/timectx"
 )
 
 type Logger struct {
@@ -34,5 +34,5 @@ func (l *Logger) Logln(s string) {
 }
 
 func fileName() string {
-	return "check-http-status_" + timeutil.NowStr() + ".log"
+	return "check-http-status_" + timectx.NowStr() + ".log"
 }

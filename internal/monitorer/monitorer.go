@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/supermarine1377/check-http-status/internal/models"
-	"github.com/supermarine1377/check-http-status/timeutil"
+	"github.com/supermarine1377/check-http-status/timectx"
 )
 
 type Monitorer struct {
@@ -76,7 +76,7 @@ func (m *Monitorer) result(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	t := timeutil.NowStr()
+	t := timectx.NowStr()
 	s := t + " " + res.Status
 	return s, nil
 }

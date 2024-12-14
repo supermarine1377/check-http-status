@@ -1,6 +1,8 @@
-package timeutil
+package timectx
 
-import "time"
+import (
+	"time"
+)
 
 const timeFormat = "2006-01-02_15-04-05"
 
