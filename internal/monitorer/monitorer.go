@@ -3,10 +3,10 @@ package monitorer
 import (
 	"context"
 	"io"
-	"net/http"
 	"time"
 
 	"github.com/supermarine1377/check-http-status/internal/log_files"
+	"github.com/supermarine1377/check-http-status/internal/models"
 	"github.com/supermarine1377/check-http-status/internal/monitorer/sleeper"
 	"github.com/supermarine1377/check-http-status/timeutil"
 )
@@ -56,7 +56,7 @@ type Sleeper interface {
 }
 
 type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
+	Get(ctx context.Context, req *models.Request) (*models.Response, error)
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -83,21 +83,16 @@ func (m *Monitorer) result(ctx context.Context) (string, error) {
 		time.Duration(m.TimeoutSeconds())*time.Second,
 	)
 	defer cancel()
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		m.targetURL,
-		nil,
-	)
+	req, err := models.NewRequest(m.targetURL)
 	if err != nil {
 		return "", err
 	}
-	t := timeutil.NowStr()
-	res, err := m.httpClient.Do(req)
+	res, err := m.httpClient.Get(ctx, req)
 	if err != nil {
 		return "", err
 	}
 
+	t := timeutil.NowStr()
 	s := t + " " + res.Status
 	return s, nil
 }

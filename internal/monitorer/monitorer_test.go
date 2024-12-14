@@ -2,16 +2,16 @@ package monitorer
 
 import (
 	"context"
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/supermarine1377/check-http-status/internal/models"
 	"github.com/supermarine1377/check-http-status/internal/monitorer/mock"
 	"go.uber.org/mock/gomock"
 )
 
-const targetURL = "/"
+const targetURL = "https://localhost"
 
 func prepareMockFlags(m *mock.MockFlags) {
 	m.EXPECT().IntervalSeconds().Return(1)
@@ -29,10 +29,13 @@ func TestMonitorer_result(t *testing.T) {
 		{
 			name: "",
 			prepareMockHTTPClient: func(mc *mock.MockHTTPClient) {
-				res := &http.Response{
+				req := &models.Request{
+					RawURL: targetURL,
+				}
+				res := &models.Response{
 					Status: "200 OK",
 				}
-				mc.EXPECT().Do(gomock.Any()).Return(res, nil)
+				mc.EXPECT().Get(gomock.Any(), req).Return(res, nil)
 			},
 			want:    "",
 			wantErr: false,

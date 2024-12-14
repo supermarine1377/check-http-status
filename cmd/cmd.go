@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/supermarine1377/check-http-status/cmd/flags"
 	"github.com/supermarine1377/check-http-status/internal/monitorer"
+	"github.com/supermarine1377/check-http-status/internal/monitorer/client"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -42,8 +43,8 @@ var rootCmd = &cobra.Command{
 			fmt.Fprintln(cmd.OutOrStderr(), err)
 			os.Exit(1)
 		}
-
-		m := monitorer.New(http.DefaultClient, targetURL, options)
+		c := client.New(http.DefaultTransport)
+		m := monitorer.New(c, targetURL, options)
 		ctx, stop := signal.NotifyContext(
 			context.Background(),
 			os.Interrupt,
