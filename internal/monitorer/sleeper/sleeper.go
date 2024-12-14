@@ -1,6 +1,8 @@
 package sleeper
 
-import "time"
+import (
+	"time"
+)
 
 type Sleeper struct {
 	duration time.Duration
@@ -11,5 +13,5 @@ func New(d time.Duration) *Sleeper {
 }
 
 func (s *Sleeper) Sleep() {
-	time.Sleep(s.duration)
+	time.Sleep(s.duration * time.Second)
 }
