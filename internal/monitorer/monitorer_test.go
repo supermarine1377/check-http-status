@@ -14,11 +14,8 @@ import (
 const targetURL = "https://localhost"
 
 func prepareMockFlags(m *mock.MockFlags) {
-	m.EXPECT().IntervalSeconds().Return(1)
-	m.EXPECT().CreateLogFile().Return(false)
 	m.EXPECT().TimeoutSeconds().Return(10)
 }
-
 func TestMonitorer_result(t *testing.T) {
 	tests := []struct {
 		name                  string
@@ -27,7 +24,7 @@ func TestMonitorer_result(t *testing.T) {
 		wantErr               bool
 	}{
 		{
-			name: "",
+			name: "200 OK",
 			prepareMockHTTPClient: func(mc *mock.MockHTTPClient) {
 				req := &models.Request{
 					RawURL: targetURL,
@@ -49,11 +46,8 @@ func TestMonitorer_result(t *testing.T) {
 
 			flags := mock.NewMockFlags(ctrl)
 			prepareMockFlags(flags)
-			opt, err := NewOptions(flags)
-			if !tt.wantErr {
-				require.NoError(t, err)
-			}
-			m := New(mc, targetURL, opt)
+
+			m := New(mc, nil, nil, targetURL, flags)
 			got, err := m.result(context.Background())
 			if !tt.wantErr {
 				require.NoError(t, err)
