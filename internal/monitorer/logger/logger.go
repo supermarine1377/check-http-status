@@ -1,4 +1,4 @@
-package log_files
+package logger
 
 import (
 	"io"
@@ -7,7 +7,11 @@ import (
 	"github.com/supermarine1377/check-http-status/timeutil"
 )
 
-func New(createLogFile bool) ([]io.Writer, error) {
+type Logger struct {
+	files []io.Writer
+}
+
+func New(createLogFile bool) (*Logger, error) {
 	files := make([]io.Writer, 0, 2)
 	files = append(files, os.Stdout)
 
@@ -19,7 +23,14 @@ func New(createLogFile bool) ([]io.Writer, error) {
 		files = append(files, logFile)
 	}
 
-	return files, nil
+	return &Logger{files: files}, nil
+}
+
+func (l *Logger) Logln(s string) {
+	b := []byte(s + "\n")
+	for _, f := range l.files {
+		f.Write(b)
+	}
 }
 
 func fileName() string {

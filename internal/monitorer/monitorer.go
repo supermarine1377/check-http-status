@@ -2,52 +2,32 @@ package monitorer
 
 import (
 	"context"
-	"io"
-	"net/http"
 	"time"
 
-	"github.com/supermarine1377/check-http-status/internal/log_files"
-	"github.com/supermarine1377/check-http-status/internal/monitorer/sleeper"
+	"github.com/supermarine1377/check-http-status/internal/models"
 	"github.com/supermarine1377/check-http-status/timeutil"
 )
 
 type Monitorer struct {
 	httpClient HTTPClient
 	targetURL  string
-	*Options
 	Sleeper
-}
-
-func New(client HTTPClient, targetURL string, options *Options) *Monitorer {
-	d := time.Second * time.Duration(options.IntervalSeconds())
-	return &Monitorer{
-		httpClient: client,
-		targetURL:  targetURL,
-		Options:    options,
-		Sleeper:    sleeper.New(d),
-	}
-}
-
-type Options struct {
-	files []io.Writer
+	Logger
 	Flags
 }
 
-func NewOptions(flags Flags) (*Options, error) {
-	files, err := log_files.New(flags.CreateLogFile())
-	if err != nil {
-		return nil, err
+func New(client HTTPClient, logger Logger, sleeper Sleeper, targetURL string, flags Flags) *Monitorer {
+	return &Monitorer{
+		httpClient: client,
+		targetURL:  targetURL,
+		Logger:     logger,
+		Sleeper:    sleeper,
+		Flags:      flags,
 	}
-	return &Options{
-		files: files,
-		Flags: flags,
-	}, nil
 }
 
 //go:generate mockgen -source=$GOFILE -package=mock -destination=mock/mock.go
 type Flags interface {
-	IntervalSeconds() int
-	CreateLogFile() bool
 	TimeoutSeconds() int
 }
 
@@ -56,7 +36,11 @@ type Sleeper interface {
 }
 
 type HTTPClient interface {
-	Do(req *http.Request) (*http.Response, error)
+	Get(ctx context.Context, req *models.Request) (*models.Response, error)
+}
+
+type Logger interface {
+	Logln(s string)
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -68,10 +52,10 @@ Loop:
 		default:
 			r, err := m.result(ctx)
 			if err != nil {
-				m.logln(err.Error())
+				m.Logln(err.Error())
 				continue
 			}
-			m.logln(r)
+			m.Logln(r)
 			m.Sleep()
 		}
 	}
@@ -83,28 +67,16 @@ func (m *Monitorer) result(ctx context.Context) (string, error) {
 		time.Duration(m.TimeoutSeconds())*time.Second,
 	)
 	defer cancel()
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodGet,
-		m.targetURL,
-		nil,
-	)
+	req, err := models.NewRequest(m.targetURL)
 	if err != nil {
 		return "", err
 	}
-	t := timeutil.NowStr()
-	res, err := m.httpClient.Do(req)
+	res, err := m.httpClient.Get(ctx, req)
 	if err != nil {
 		return "", err
 	}
 
+	t := timeutil.NowStr()
 	s := t + " " + res.Status
 	return s, nil
-}
-
-func (m *Monitorer) logln(s string) {
-	b := []byte(s + "\n")
-	for _, f := range m.files {
-		f.Write(b)
-	}
 }

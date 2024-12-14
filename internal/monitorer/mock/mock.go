@@ -10,9 +10,10 @@
 package mock
 
 import (
-	http "net/http"
+	context "context"
 	reflect "reflect"
 
+	models "github.com/supermarine1377/check-http-status/internal/models"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -38,34 +39,6 @@ func NewMockFlags(ctrl *gomock.Controller) *MockFlags {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockFlags) EXPECT() *MockFlagsMockRecorder {
 	return m.recorder
-}
-
-// CreateLogFile mocks base method.
-func (m *MockFlags) CreateLogFile() bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateLogFile")
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// CreateLogFile indicates an expected call of CreateLogFile.
-func (mr *MockFlagsMockRecorder) CreateLogFile() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLogFile", reflect.TypeOf((*MockFlags)(nil).CreateLogFile))
-}
-
-// IntervalSeconds mocks base method.
-func (m *MockFlags) IntervalSeconds() int {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IntervalSeconds")
-	ret0, _ := ret[0].(int)
-	return ret0
-}
-
-// IntervalSeconds indicates an expected call of IntervalSeconds.
-func (mr *MockFlagsMockRecorder) IntervalSeconds() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IntervalSeconds", reflect.TypeOf((*MockFlags)(nil).IntervalSeconds))
 }
 
 // TimeoutSeconds mocks base method.
@@ -142,17 +115,53 @@ func (m *MockHTTPClient) EXPECT() *MockHTTPClientMockRecorder {
 	return m.recorder
 }
 
-// Do mocks base method.
-func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+// Get mocks base method.
+func (m *MockHTTPClient) Get(ctx context.Context, req *models.Request) (*models.Response, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Do", req)
-	ret0, _ := ret[0].(*http.Response)
+	ret := m.ctrl.Call(m, "Get", ctx, req)
+	ret0, _ := ret[0].(*models.Response)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Do indicates an expected call of Do.
-func (mr *MockHTTPClientMockRecorder) Do(req any) *gomock.Call {
+// Get indicates an expected call of Get.
+func (mr *MockHTTPClientMockRecorder) Get(ctx, req any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Do", reflect.TypeOf((*MockHTTPClient)(nil).Do), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHTTPClient)(nil).Get), ctx, req)
+}
+
+// MockLogger is a mock of Logger interface.
+type MockLogger struct {
+	ctrl     *gomock.Controller
+	recorder *MockLoggerMockRecorder
+	isgomock struct{}
+}
+
+// MockLoggerMockRecorder is the mock recorder for MockLogger.
+type MockLoggerMockRecorder struct {
+	mock *MockLogger
+}
+
+// NewMockLogger creates a new mock instance.
+func NewMockLogger(ctrl *gomock.Controller) *MockLogger {
+	mock := &MockLogger{ctrl: ctrl}
+	mock.recorder = &MockLoggerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockLogger) EXPECT() *MockLoggerMockRecorder {
+	return m.recorder
+}
+
+// Logln mocks base method.
+func (m *MockLogger) Logln(s string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Logln", s)
+}
+
+// Logln indicates an expected call of Logln.
+func (mr *MockLoggerMockRecorder) Logln(s any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logln", reflect.TypeOf((*MockLogger)(nil).Logln), s)
 }

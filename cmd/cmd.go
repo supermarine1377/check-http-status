@@ -9,10 +9,14 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/supermarine1377/check-http-status/cmd/flags"
 	"github.com/supermarine1377/check-http-status/internal/monitorer"
+	"github.com/supermarine1377/check-http-status/internal/monitorer/client"
+	"github.com/supermarine1377/check-http-status/internal/monitorer/logger"
+	"github.com/supermarine1377/check-http-status/internal/monitorer/sleeper"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -37,13 +41,15 @@ var rootCmd = &cobra.Command{
 			fmt.Fprintln(cmd.OutOrStderr(), err)
 			os.Exit(1)
 		}
-		options, err := monitorer.NewOptions(flags)
+		c := client.New(http.DefaultTransport)
+		l, err := logger.New(flags.CreateLogFile())
 		if err != nil {
 			fmt.Fprintln(cmd.OutOrStderr(), err)
 			os.Exit(1)
 		}
+		s := sleeper.New(time.Duration(flags.IntervalSeconds()))
 
-		m := monitorer.New(http.DefaultClient, targetURL, options)
+		m := monitorer.New(c, l, s, targetURL, flags)
 		ctx, stop := signal.NotifyContext(
 			context.Background(),
 			os.Interrupt,
