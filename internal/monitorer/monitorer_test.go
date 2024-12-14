@@ -55,7 +55,9 @@ func TestMonitorer_result(t *testing.T) {
 			ctx := timectxtest.WithFixedNow(t, context.Background(), now)
 
 			got, err := m.result(ctx)
-			if !tt.wantErr {
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
 				require.NoError(t, err)
 			}
 
