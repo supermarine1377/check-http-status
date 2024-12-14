@@ -10,9 +10,10 @@
 package mock
 
 import (
-	http "net/http"
+	context "context"
 	reflect "reflect"
 
+	models "github.com/supermarine1377/check-http-status/internal/models"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -142,17 +143,17 @@ func (m *MockHTTPClient) EXPECT() *MockHTTPClientMockRecorder {
 	return m.recorder
 }
 
-// Do mocks base method.
-func (m *MockHTTPClient) Do(req *http.Request) (*http.Response, error) {
+// Get mocks base method.
+func (m *MockHTTPClient) Get(ctx context.Context, req *models.Request) (*models.Response, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Do", req)
-	ret0, _ := ret[0].(*http.Response)
+	ret := m.ctrl.Call(m, "Get", ctx, req)
+	ret0, _ := ret[0].(*models.Response)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Do indicates an expected call of Do.
-func (mr *MockHTTPClientMockRecorder) Do(req any) *gomock.Call {
+// Get indicates an expected call of Get.
+func (mr *MockHTTPClientMockRecorder) Get(ctx, req any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Do", reflect.TypeOf((*MockHTTPClient)(nil).Do), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHTTPClient)(nil).Get), ctx, req)
 }
