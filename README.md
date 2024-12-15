@@ -9,6 +9,13 @@
 - Supports request timeouts to avoid hanging on unresponsive servers.
 - Gracefully handles termination via `Ctrl+C`.
 
+## Sample output
+
+```
+2024-12-15_19-10-33 809.193ms 200 OK
+2024-12-15_19-10-38 247.139ms 200 OK
+```
+
 ## Installation
 
 ### Install via `go install`
