@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/supermarine1377/check-http-status/internal/models"
+	"github.com/supermarine1377/check-http-status/timectx"
 )
 
 type Client struct {
@@ -31,5 +32,8 @@ func (c *Client) Get(ctx context.Context, req *models.Request) (*models.Response
 	if err != nil {
 		return nil, err
 	}
-	return &models.Response{Status: res.Status}, nil
+	return &models.Response{
+		Status:     res.Status,
+		ReceivedAt: timectx.Now(ctx),
+	}, nil
 }

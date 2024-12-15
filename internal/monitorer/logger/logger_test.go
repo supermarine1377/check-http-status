@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/supermarine1377/check-http-status/internal/models"
 	"github.com/supermarine1377/check-http-status/internal/monitorer/logger"
+	"github.com/supermarine1377/check-http-status/timectx"
 	"github.com/supermarine1377/check-http-status/timectx/timectxtest"
 )
 
@@ -36,8 +37,7 @@ func TestLogger_Logln(t *testing.T) {
 	require.NoError(t, err)
 
 	ctx := timectxtest.WithFixedNow(t, context.Background(), now)
-
-	res := &models.Response{Status: "200 OK"}
+	res := &models.Response{Status: "200 OK", ReceivedAt: timectx.Now(ctx)}
 	l.Logln(ctx, res)
 
 	w.Close()
