@@ -3,10 +3,13 @@ package models
 import (
 	"errors"
 	"net/url"
+	"time"
 )
 
 type Response struct {
-	Status string
+	ReceivedAt   time.Time
+	Status       string
+	ResponseTime time.Duration
 }
 
 type Request struct {

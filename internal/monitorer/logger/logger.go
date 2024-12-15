@@ -28,15 +28,16 @@ func New(createLogFile bool) (*Logger, error) {
 	return &Logger{file: w}, nil
 }
 
+const timeFormat = "2006-01-02_15-04-05"
+
 func (l *Logger) Logln(ctx context.Context, r *models.Response) {
-	t := timectx.NowStr(ctx)
-	s := t + " " + r.Status
+	s := r.ReceivedAt.Format(timeFormat) + " " + r.ResponseTime.String() + " " + r.Status
 	b := []byte(s + "\n")
 	_, _ = l.file.Write(b)
 }
 
 func (l *Logger) Error(ctx context.Context, err error) {
-	t := timectx.NowStr(ctx)
+	t := timectx.Now(ctx).Format(timeFormat)
 	s := t + " " + err.Error()
 	fmt.Fprintln(os.Stderr, s)
 	b := []byte(err.Error())
@@ -44,5 +45,6 @@ func (l *Logger) Error(ctx context.Context, err error) {
 }
 
 func fileName(ctx context.Context) string {
-	return "check-http-status_" + timectx.NowStr(ctx) + ".log"
+	t := timectx.Now(ctx).Format(timeFormat)
+	return "check-http-status_" + t + ".log"
 }
