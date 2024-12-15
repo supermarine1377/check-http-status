@@ -30,7 +30,7 @@ func New(createLogFile bool) (*Logger, error) {
 func (l *Logger) Logln(s string) {
 	b := []byte(s + "\n")
 	for _, f := range l.files {
-		f.Write(b)
+		_, _ = f.Write(b)
 	}
 }
 
