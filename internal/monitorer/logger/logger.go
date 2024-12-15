@@ -2,9 +2,11 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 
+	"github.com/supermarine1377/check-http-status/internal/models"
 	"github.com/supermarine1377/check-http-status/timectx"
 )
 
@@ -27,10 +29,22 @@ func New(createLogFile bool) (*Logger, error) {
 	return &Logger{files: files}, nil
 }
 
-func (l *Logger) Logln(s string) {
+func (l *Logger) Logln(ctx context.Context, r *models.Response) {
+	t := timectx.NowStr(ctx)
+	s := t + " " + r.Status
 	b := []byte(s + "\n")
 	for _, f := range l.files {
-		f.Write(b)
+		_, _ = f.Write(b)
+	}
+}
+
+func (l *Logger) Error(ctx context.Context, err error) {
+	t := timectx.NowStr(ctx)
+	s := t + " " + err.Error()
+	fmt.Fprintln(os.Stderr, s)
+	b := []byte(err.Error())
+	for _, f := range l.files {
+		_, _ = f.Write([]byte(b))
 	}
 }
 

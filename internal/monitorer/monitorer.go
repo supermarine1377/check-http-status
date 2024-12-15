@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/supermarine1377/check-http-status/internal/models"
-	"github.com/supermarine1377/check-http-status/timectx"
 )
 
 type Monitorer struct {
@@ -40,7 +39,8 @@ type HTTPClient interface {
 }
 
 type Logger interface {
-	Logln(s string)
+	Logln(ctx context.Context, r *models.Response)
+	Error(ctx context.Context, err error)
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -52,16 +52,16 @@ Loop:
 		default:
 			r, err := m.result(ctx)
 			if err != nil {
-				m.Logln(err.Error())
+				m.Error(ctx, err)
 				continue
 			}
-			m.Logln(r)
+			m.Logln(ctx, r)
 			m.Sleep()
 		}
 	}
 }
 
-func (m *Monitorer) result(ctx context.Context) (string, error) {
+func (m *Monitorer) result(ctx context.Context) (*models.Response, error) {
 	ctx, cancel := context.WithTimeout(
 		ctx,
 		time.Duration(m.TimeoutSeconds())*time.Second,
@@ -69,14 +69,11 @@ func (m *Monitorer) result(ctx context.Context) (string, error) {
 	defer cancel()
 	req, err := models.NewRequest(m.targetURL)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	res, err := m.httpClient.Get(ctx, req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-
-	t := timectx.NowStr(ctx)
-	s := t + " " + res.Status
-	return s, nil
+	return res, nil
 }
