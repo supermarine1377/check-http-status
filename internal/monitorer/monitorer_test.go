@@ -3,17 +3,13 @@ package monitorer
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/supermarine1377/check-http-status/internal/models"
 	"github.com/supermarine1377/check-http-status/internal/monitorer/mock"
-	"github.com/supermarine1377/check-http-status/timectx/timectxtest"
 	"go.uber.org/mock/gomock"
 )
-
-var now = time.Date(2024, time.December, 14, 0, 0, 0, 0, time.Local)
 
 const targetURL = "https://localhost"
 
@@ -24,7 +20,7 @@ func TestMonitorer_result(t *testing.T) {
 	tests := []struct {
 		name                  string
 		prepareMockHTTPClient func(mc *mock.MockHTTPClient)
-		want                  string
+		want                  *models.Response
 		wantErr               bool
 	}{
 		{
@@ -38,7 +34,9 @@ func TestMonitorer_result(t *testing.T) {
 				}
 				mc.EXPECT().Get(gomock.Any(), req).Return(res, nil)
 			},
-			want:    "2024-12-14_00-00-00 200 OK",
+			want: &models.Response{
+				Status: "200 OK",
+			},
 			wantErr: false,
 		},
 	}
@@ -52,9 +50,8 @@ func TestMonitorer_result(t *testing.T) {
 			prepareMockFlags(flags)
 
 			m := New(mc, nil, nil, targetURL, flags)
-			ctx := timectxtest.WithFixedNow(t, context.Background(), now)
 
-			got, err := m.result(ctx)
+			got, err := m.result(context.Background())
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
