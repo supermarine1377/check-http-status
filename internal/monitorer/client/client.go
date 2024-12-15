@@ -28,12 +28,16 @@ func (c *Client) Get(ctx context.Context, req *models.Request) (*models.Response
 	if err != nil {
 		return nil, err
 	}
+	now1 := timectx.Now(ctx)
 	res, err := c.base.Do(httpReq)
 	if err != nil {
 		return nil, err
 	}
+	now2 := timectx.Now(ctx)
+
 	return &models.Response{
-		Status:     res.Status,
-		ReceivedAt: timectx.Now(ctx),
+		Status:       res.Status,
+		ReceivedAt:   timectx.Now(ctx),
+		ResponseTime: now2.Sub(now1),
 	}, nil
 }

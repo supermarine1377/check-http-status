@@ -7,8 +7,9 @@ import (
 )
 
 type Response struct {
-	ReceivedAt time.Time
-	Status     string
+	ReceivedAt   time.Time
+	Status       string
+	ResponseTime time.Duration
 }
 
 type Request struct {

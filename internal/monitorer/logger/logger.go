@@ -31,7 +31,7 @@ func New(createLogFile bool) (*Logger, error) {
 const timeFormat = "2006-01-02_15-04-05"
 
 func (l *Logger) Logln(ctx context.Context, r *models.Response) {
-	s := r.ReceivedAt.Format(timeFormat) + " " + r.Status
+	s := r.ReceivedAt.Format(timeFormat) + " " + r.ResponseTime.String() + " " + r.Status
 	b := []byte(s + "\n")
 	_, _ = l.file.Write(b)
 }
