@@ -29,3 +29,7 @@ func NewRequest(rawURL string) (*Request, error) {
 	}
 	return &Request{RawURL: rawURL}, nil
 }
+
+func (res *Response) IsOK() bool {
+	return res.Status == "200 OK"
+}

@@ -40,6 +40,7 @@ type HTTPClient interface {
 
 type Logger interface {
 	Logln(ctx context.Context, r *models.Response)
+	ErrorRes(ctx context.Context, r *models.Response)
 	Error(ctx context.Context, err error)
 }
 
@@ -55,7 +56,11 @@ Loop:
 				m.Error(ctx, err)
 				continue
 			}
-			m.Logln(ctx, r)
+			if r.IsOK() {
+				m.Logln(ctx, r)
+			} else {
+				m.ErrorRes(ctx, r)
+			}
 			m.Sleep()
 		}
 	}
