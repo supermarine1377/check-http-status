@@ -22,11 +22,9 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Version: "v0.1.1",
-	Use: `
-	check-http-status <URL> [flags]
-	`,
-	Short: "Monitors the HTTP status code of a specified website at regular intervals.",
-	Long:  `Monitors the HTTP status code of a specified website at regular intervals.`,
+	Use:     `check-http-status <URL> [flags]`,
+	Short:   "Monitors the HTTP status code of a specified website at regular intervals.",
+	Long:    `Monitors the HTTP status code of a specified website at regular intervals.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
