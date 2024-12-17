@@ -39,9 +39,9 @@ type HTTPClient interface {
 }
 
 type Logger interface {
-	Logln(ctx context.Context, r *models.Response)
-	ErrorRes(ctx context.Context, r *models.Response)
-	Error(ctx context.Context, err error)
+	LogResponse(ctx context.Context, r *models.Response)
+	LogError(ctx context.Context, format string, args ...interface{})
+	LogErrorResponse(ctx context.Context, r *models.Response)
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -53,13 +53,13 @@ Loop:
 		default:
 			r, err := m.result(ctx)
 			if err != nil {
-				m.Error(ctx, err)
+				m.LogError(ctx, "%w", err)
 				continue
 			}
 			if r.IsOK() {
-				m.Logln(ctx, r)
+				m.LogResponse(ctx, r)
 			} else {
-				m.ErrorRes(ctx, r)
+				m.LogErrorResponse(ctx, r)
 			}
 			m.Sleep()
 		}
