@@ -12,8 +12,9 @@
 ## Sample output
 
 ```
-2024-12-15_19-10-33 809.193ms 200 OK
-2024-12-15_19-10-38 247.139ms 200 OK
+Timestamp=2024-12-17_22-44-18, Response time=223.767ms, Status=200 OK
+Timestamp=2024-12-17_22-44-28, Response time=99.739ms, Status=200 OK
+Timestamp=2024-12-17_22-44-38, Response time=87.543ms, Status=200 OK
 ```
 
 ## Installation
