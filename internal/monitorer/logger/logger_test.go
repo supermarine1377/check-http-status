@@ -18,7 +18,7 @@ import (
 
 var now = time.Date(2024, time.December, 14, 0, 0, 0, 0, time.Local)
 
-func TestLogger_Logln(t *testing.T) {
+func TestLogger_LogResponse(t *testing.T) {
 	out := os.Stdout
 
 	r, w, _ := os.Pipe()
@@ -38,12 +38,12 @@ func TestLogger_Logln(t *testing.T) {
 
 	ctx := timectxtest.WithFixedNow(t, context.Background(), now)
 	res := &models.Response{Status: "200 OK", ReceivedAt: timectx.Now(ctx), ResponseTime: time.Second}
-	l.Logln(ctx, res)
+	l.LogResponse(ctx, res)
 
 	w.Close()
 	wg.Wait()
 
 	os.Stdout = out
 
-	assert.Equal(t, "2024-12-14_00-00-00 1s 200 OK\n", captured.String())
+	assert.Equal(t, "Timestamp=2024-12-14_00-00-00, Response time=1s, Status=200 OK\n", captured.String())
 }

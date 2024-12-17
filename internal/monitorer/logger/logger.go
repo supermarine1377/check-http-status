@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 
@@ -25,28 +26,38 @@ func New(createLogFile bool) (*Logger, error) {
 		w = io.MultiWriter(w, logFile)
 	}
 
-	return &Logger{file: w}, nil
+	return &Logger{
+		file: w,
+	}, nil
+}
+
+var (
+	colorInfo  = color.New(color.FgGreen)
+	colorError = color.New(color.FgRed)
+)
+
+func (l *Logger) LogResponse(ctx context.Context, r *models.Response) {
+	l.LogInfo(ctx, "Response time=%s, Status=%s", r.ResponseTime, r.Status)
+}
+
+func (l *Logger) LogInfo(ctx context.Context, format string, args ...interface{}) {
+	l.log(ctx, colorInfo, format, args...)
+}
+
+func (l *Logger) LogError(ctx context.Context, format string, args ...interface{}) {
+	l.log(ctx, colorError, format, args...)
+}
+
+func (l *Logger) LogErrorResponse(ctx context.Context, r *models.Response) {
+	l.LogError(ctx, "Response time:%s, Status:%s", r.ResponseTime, r.Status)
 }
 
 const timeFormat = "2006-01-02_15-04-05"
 
-func (l *Logger) Logln(ctx context.Context, r *models.Response) {
-	t := r.ReceivedAt.Format(timeFormat)
-	resTime := r.ResponseTime.String()
-	fontColor := color.New(color.FgGreen)
-	_, _ = fontColor.Fprintln(l.file, t, resTime, r.Status)
-}
-
-func (l *Logger) ErrorRes(ctx context.Context, r *models.Response) {
-	t := timectx.Now(ctx).Format(timeFormat)
-	fontColor := color.New(color.FgRed)
-	_, _ = fontColor.Fprintln(l.file, t, r.Status)
-}
-
-func (l *Logger) Error(ctx context.Context, err error) {
-	t := timectx.Now(ctx).Format(timeFormat)
-	fontColor := color.New(color.FgRed)
-	_, _ = fontColor.Fprintln(l.file, t, err)
+func (l *Logger) log(ctx context.Context, color *color.Color, format string, args ...interface{}) {
+	timestamp := timectx.Now(ctx).Format(timeFormat)
+	message := fmt.Sprintf("Timestamp=%s, %s", timestamp, fmt.Sprintf(format, args...))
+	_, _ = color.Fprintln(l.file, message)
 }
 
 func fileName(ctx context.Context) string {
