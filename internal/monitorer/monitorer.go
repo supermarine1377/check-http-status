@@ -12,21 +12,21 @@ type Monitorer struct {
 	targetURL  string
 	Sleeper
 	Logger
-	Flags
+	Option
 }
 
-func New(client HTTPClient, logger Logger, sleeper Sleeper, targetURL string, flags Flags) *Monitorer {
+func New(client HTTPClient, logger Logger, sleeper Sleeper, targetURL string, opt Option) *Monitorer {
 	return &Monitorer{
 		httpClient: client,
 		targetURL:  targetURL,
 		Logger:     logger,
 		Sleeper:    sleeper,
-		Flags:      flags,
+		Option:     opt,
 	}
 }
 
 //go:generate mockgen -source=$GOFILE -package=mock -destination=mock/mock.go
-type Flags interface {
+type Option interface {
 	TimeoutSeconds() int
 }
 
