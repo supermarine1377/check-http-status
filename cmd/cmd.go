@@ -21,7 +21,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Version: "v0.2.0",
+	Version: "v0.3.0",
 	Use:     `check-http-status <URL> [flags]`,
 	Short:   "Monitors the HTTP status code of a specified website at regular intervals.",
 	Long:    `Monitors the HTTP status code of a specified website at regular intervals.`,
