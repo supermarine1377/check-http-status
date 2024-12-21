@@ -12,21 +12,21 @@ type Monitorer struct {
 	targetURL  string
 	Sleeper
 	Logger
-	Flags
+	Option
 }
 
-func New(client HTTPClient, logger Logger, sleeper Sleeper, targetURL string, flags Flags) *Monitorer {
+func New(client HTTPClient, logger Logger, sleeper Sleeper, targetURL string, opt Option) *Monitorer {
 	return &Monitorer{
 		httpClient: client,
 		targetURL:  targetURL,
 		Logger:     logger,
 		Sleeper:    sleeper,
-		Flags:      flags,
+		Option:     opt,
 	}
 }
 
 //go:generate mockgen -source=$GOFILE -package=mock -destination=mock/mock.go
-type Flags interface {
+type Option interface {
 	TimeoutSeconds() int
 }
 
@@ -42,6 +42,7 @@ type Logger interface {
 	LogResponse(ctx context.Context, r *models.Response)
 	LogError(ctx context.Context, format string, args ...interface{})
 	LogErrorResponse(ctx context.Context, r *models.Response)
+	SummarizeResults(ctx context.Context)
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -49,6 +50,7 @@ Loop:
 	for {
 		select {
 		case <-ctx.Done():
+			m.SummarizeResults(ctx)
 			break Loop
 		default:
 			r, err := m.result(ctx)

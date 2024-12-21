@@ -13,8 +13,8 @@ import (
 
 const targetURL = "https://localhost"
 
-func prepareMockFlags(m *mock.MockFlags) {
-	m.EXPECT().TimeoutSeconds().Return(10)
+func prepareMockOption(mo *mock.MockOption) {
+	mo.EXPECT().TimeoutSeconds().Return(10)
 }
 func TestMonitorer_result(t *testing.T) {
 	tests := []struct {
@@ -46,10 +46,10 @@ func TestMonitorer_result(t *testing.T) {
 			mc := mock.NewMockHTTPClient(ctrl)
 			tt.prepareMockHTTPClient(mc)
 
-			flags := mock.NewMockFlags(ctrl)
-			prepareMockFlags(flags)
+			opt := mock.NewMockOption(ctrl)
+			prepareMockOption(opt)
 
-			m := New(mc, nil, nil, targetURL, flags)
+			m := New(mc, nil, nil, targetURL, opt)
 
 			got, err := m.result(context.Background())
 			if tt.wantErr {

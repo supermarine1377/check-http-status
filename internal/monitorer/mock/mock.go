@@ -17,32 +17,32 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockFlags is a mock of Flags interface.
-type MockFlags struct {
+// MockOption is a mock of Option interface.
+type MockOption struct {
 	ctrl     *gomock.Controller
-	recorder *MockFlagsMockRecorder
+	recorder *MockOptionMockRecorder
 	isgomock struct{}
 }
 
-// MockFlagsMockRecorder is the mock recorder for MockFlags.
-type MockFlagsMockRecorder struct {
-	mock *MockFlags
+// MockOptionMockRecorder is the mock recorder for MockOption.
+type MockOptionMockRecorder struct {
+	mock *MockOption
 }
 
-// NewMockFlags creates a new mock instance.
-func NewMockFlags(ctrl *gomock.Controller) *MockFlags {
-	mock := &MockFlags{ctrl: ctrl}
-	mock.recorder = &MockFlagsMockRecorder{mock}
+// NewMockOption creates a new mock instance.
+func NewMockOption(ctrl *gomock.Controller) *MockOption {
+	mock := &MockOption{ctrl: ctrl}
+	mock.recorder = &MockOptionMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockFlags) EXPECT() *MockFlagsMockRecorder {
+func (m *MockOption) EXPECT() *MockOptionMockRecorder {
 	return m.recorder
 }
 
 // TimeoutSeconds mocks base method.
-func (m *MockFlags) TimeoutSeconds() int {
+func (m *MockOption) TimeoutSeconds() int {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TimeoutSeconds")
 	ret0, _ := ret[0].(int)
@@ -50,9 +50,9 @@ func (m *MockFlags) TimeoutSeconds() int {
 }
 
 // TimeoutSeconds indicates an expected call of TimeoutSeconds.
-func (mr *MockFlagsMockRecorder) TimeoutSeconds() *gomock.Call {
+func (mr *MockOptionMockRecorder) TimeoutSeconds() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TimeoutSeconds", reflect.TypeOf((*MockFlags)(nil).TimeoutSeconds))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TimeoutSeconds", reflect.TypeOf((*MockOption)(nil).TimeoutSeconds))
 }
 
 // MockSleeper is a mock of Sleeper interface.
@@ -154,14 +154,55 @@ func (m *MockLogger) EXPECT() *MockLoggerMockRecorder {
 	return m.recorder
 }
 
-// Logln mocks base method.
-func (m *MockLogger) Logln(s string) {
+// LogError mocks base method.
+func (m *MockLogger) LogError(ctx context.Context, format string, args ...any) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Logln", s)
+	varargs := []any{ctx, format}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "LogError", varargs...)
 }
 
-// Logln indicates an expected call of Logln.
-func (mr *MockLoggerMockRecorder) Logln(s any) *gomock.Call {
+// LogError indicates an expected call of LogError.
+func (mr *MockLoggerMockRecorder) LogError(ctx, format any, args ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logln", reflect.TypeOf((*MockLogger)(nil).Logln), s)
+	varargs := append([]any{ctx, format}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogError", reflect.TypeOf((*MockLogger)(nil).LogError), varargs...)
+}
+
+// LogErrorResponse mocks base method.
+func (m *MockLogger) LogErrorResponse(ctx context.Context, r *models.Response) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "LogErrorResponse", ctx, r)
+}
+
+// LogErrorResponse indicates an expected call of LogErrorResponse.
+func (mr *MockLoggerMockRecorder) LogErrorResponse(ctx, r any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogErrorResponse", reflect.TypeOf((*MockLogger)(nil).LogErrorResponse), ctx, r)
+}
+
+// LogResponse mocks base method.
+func (m *MockLogger) LogResponse(ctx context.Context, r *models.Response) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "LogResponse", ctx, r)
+}
+
+// LogResponse indicates an expected call of LogResponse.
+func (mr *MockLoggerMockRecorder) LogResponse(ctx, r any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogResponse", reflect.TypeOf((*MockLogger)(nil).LogResponse), ctx, r)
+}
+
+// SummarizeResults mocks base method.
+func (m *MockLogger) SummarizeResults(ctx context.Context) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SummarizeResults", ctx)
+}
+
+// SummarizeResults indicates an expected call of SummarizeResults.
+func (mr *MockLoggerMockRecorder) SummarizeResults(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SummarizeResults", reflect.TypeOf((*MockLogger)(nil).SummarizeResults), ctx)
 }
