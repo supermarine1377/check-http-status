@@ -12,7 +12,7 @@ import (
 )
 
 type Logger struct {
-	file io.Writer
+	w io.Writer
 }
 
 func New(createLogFile bool) (*Logger, error) {
@@ -27,7 +27,7 @@ func New(createLogFile bool) (*Logger, error) {
 	}
 
 	return &Logger{
-		file: w,
+		w: w,
 	}, nil
 }
 
@@ -57,7 +57,7 @@ const timeFormat = "2006-01-02_15-04-05"
 func (l *Logger) log(ctx context.Context, color *color.Color, format string, args ...interface{}) {
 	timestamp := timectx.Now(ctx).Format(timeFormat)
 	message := fmt.Sprintf("Timestamp=%s, %s", timestamp, fmt.Sprintf(format, args...))
-	_, _ = color.Fprintln(l.file, message)
+	_, _ = color.Fprintln(l.w, message)
 }
 
 func fileName(ctx context.Context) string {
