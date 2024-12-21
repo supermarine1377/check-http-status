@@ -42,6 +42,7 @@ type Logger interface {
 	LogResponse(ctx context.Context, r *models.Response)
 	LogError(ctx context.Context, format string, args ...interface{})
 	LogErrorResponse(ctx context.Context, r *models.Response)
+	SummarizeResults(ctx context.Context)
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
@@ -49,6 +50,7 @@ Loop:
 	for {
 		select {
 		case <-ctx.Done():
+			m.SummarizeResults(ctx)
 			break Loop
 		default:
 			r, err := m.result(ctx)
