@@ -17,6 +17,16 @@ Timestamp=2024-12-17_22-44-28, Response time=99.739ms, Status=200 OK
 Timestamp=2024-12-17_22-44-38, Response time=87.543ms, Status=200 OK
 ```
 
+After interrupting by `command+c`, we can get summary:
+
+```
+----------Summary----------
+Total Requests: 3
+Successful Responses: 3 (100.00%)
+Failed Responses: 0 (0.00%)
+Average Response Time: 207.722333ms
+```
+
 ## Installation
 
 ### Install via `go install`
