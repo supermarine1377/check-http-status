@@ -13,19 +13,23 @@ import (
 
 const targetURL = "https://localhost"
 
-func prepareMockOption(mo *mock.MockOption) {
+func mockOption(ctrl *gomock.Controller) *mock.MockOption {
+	mo := mock.NewMockOption(ctrl)
 	mo.EXPECT().TimeoutSeconds().Return(10)
+	return mo
 }
+
 func TestMonitorer_result(t *testing.T) {
 	tests := []struct {
-		name                  string
-		prepareMockHTTPClient func(mc *mock.MockHTTPClient)
-		want                  *models.Response
-		wantErr               bool
+		name           string
+		mockHTTPClient func(ctrl *gomock.Controller) *mock.MockHTTPClient
+		want           *models.Response
+		wantErr        bool
 	}{
 		{
 			name: "200 OK",
-			prepareMockHTTPClient: func(mc *mock.MockHTTPClient) {
+			mockHTTPClient: func(ctrl *gomock.Controller) *mock.MockHTTPClient {
+				mc := mock.NewMockHTTPClient(ctrl)
 				req := &models.Request{
 					RawURL: targetURL,
 				}
@@ -33,6 +37,7 @@ func TestMonitorer_result(t *testing.T) {
 					Status: "200 OK",
 				}
 				mc.EXPECT().Get(gomock.Any(), req).Return(res, nil)
+				return mc
 			},
 			want: &models.Response{
 				Status: "200 OK",
@@ -43,11 +48,9 @@ func TestMonitorer_result(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
-			mc := mock.NewMockHTTPClient(ctrl)
-			tt.prepareMockHTTPClient(mc)
 
-			opt := mock.NewMockOption(ctrl)
-			prepareMockOption(opt)
+			mc := tt.mockHTTPClient(ctrl)
+			opt := mockOption(ctrl)
 
 			m := New(mc, nil, nil, targetURL, opt)
 
