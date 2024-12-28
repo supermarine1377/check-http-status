@@ -20,7 +20,7 @@ func mockOption(ctrl *gomock.Controller) *mock.MockOption {
 	return mo
 }
 
-func TestMonitorer_result(t *testing.T) {
+func TestMonitorer_fetchResult(t *testing.T) {
 	tests := []struct {
 		name           string
 		mockHTTPClient func(ctrl *gomock.Controller) *mock.MockHTTPClient
@@ -55,7 +55,7 @@ func TestMonitorer_result(t *testing.T) {
 
 			m := New(mc, nil, nil, targetURL, opt)
 
-			got, err := m.result(context.Background())
+			got, err := m.fetchResult(context.Background())
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {

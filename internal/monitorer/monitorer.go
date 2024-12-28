@@ -46,29 +46,39 @@ type Logger interface {
 }
 
 func (m *Monitorer) Do(ctx context.Context) {
-Loop:
 	for {
-		select {
-		case <-ctx.Done():
-			m.SummarizeResults(ctx)
-			break Loop
-		default:
-			r, err := m.result(ctx)
-			if err != nil {
-				m.LogError(ctx, "%w", err)
-				break Loop
-			}
-			if r.IsOK() {
-				m.LogResponse(ctx, r)
-			} else {
-				m.LogErrorResponse(ctx, r)
-			}
-			m.Sleep()
+		if err := m.once(ctx); err != nil {
+			return
 		}
+		m.Sleep()
 	}
 }
 
-func (m *Monitorer) result(ctx context.Context) (*models.Response, error) {
+func (m *Monitorer) once(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		m.SummarizeResults(ctx)
+		return ctx.Err()
+	default:
+		return m.handleResult(ctx)
+	}
+}
+
+func (m *Monitorer) handleResult(ctx context.Context) error {
+	res, err := m.fetchResult(ctx)
+	if err != nil {
+		m.LogError(ctx, "%w", err)
+		return err
+	}
+	if res.IsOK() {
+		m.LogResponse(ctx, res)
+	} else {
+		m.LogErrorResponse(ctx, res)
+	}
+	return nil
+}
+
+func (m *Monitorer) fetchResult(ctx context.Context) (*models.Response, error) {
 	ctx, cancel := context.WithTimeout(
 		ctx,
 		time.Duration(m.TimeoutSeconds())*time.Second,
