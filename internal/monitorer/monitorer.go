@@ -56,7 +56,7 @@ Loop:
 			r, err := m.result(ctx)
 			if err != nil {
 				m.LogError(ctx, "%w", err)
-				continue
+				break Loop
 			}
 			if r.IsOK() {
 				m.LogResponse(ctx, r)
