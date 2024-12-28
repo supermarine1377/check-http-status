@@ -82,7 +82,7 @@ func createMockSleeper(ctrl *gomock.Controller, done chan struct{}, sleepCount i
 func createMockLogger(ctrl *gomock.Controller, doSummarize bool) *mock.MockLogger {
 	ml := mock.NewMockLogger(ctrl)
 	ml.EXPECT().LogResponse(gomock.Any(), gomock.Any()).AnyTimes()
-	ml.EXPECT().LogError(gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes()
+	ml.EXPECT().LogError(gomock.Any(), gomock.Any()).AnyTimes()
 	ml.EXPECT().LogErrorResponse(gomock.Any(), gomock.Any()).AnyTimes()
 	if doSummarize {
 		ml.EXPECT().SummarizeResults(gomock.Any()).Return()
