@@ -2,18 +2,19 @@ package logger
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 
 	"github.com/fatih/color"
 	"github.com/supermarine1377/check-http-status/internal/models"
+	"github.com/supermarine1377/check-http-status/internal/monitorer/logger/format"
 	"github.com/supermarine1377/check-http-status/internal/monitorer/logger/metrics"
 	"github.com/supermarine1377/check-http-status/timectx"
 )
 
 type Logger struct {
 	w io.Writer
+	f format.Formatter
 	m metrics.Metrics
 }
 
@@ -30,6 +31,7 @@ func New(createLogFile bool) (*Logger, error) {
 
 	return &Logger{
 		w: w,
+		f: format.New(format.PLAIN_TEXT),
 	}, nil
 }
 
@@ -41,15 +43,15 @@ var (
 
 func (l *Logger) LogResponse(ctx context.Context, r *models.Response) {
 	l.m.Update(r)
-	l.LogInfo(ctx, "Response time=%s, Status=%s", r.ResponseTime, r.Status)
+	l.LogInfo(ctx, l.f.Format(ctx, r, ""))
 }
 
-func (l *Logger) LogInfo(ctx context.Context, format string, args ...interface{}) {
-	l.log(ctx, colorInfo, format, args...)
+func (l *Logger) LogInfo(ctx context.Context, message string) {
+	l.log(colorInfo, message)
 }
 
-func (l *Logger) LogError(ctx context.Context, format string, args ...interface{}) {
-	l.log(ctx, colorError, format, args...)
+func (l *Logger) LogError(ctx context.Context, err error) {
+	l.log(colorError, err.Error())
 }
 
 func (l *Logger) LogDefault(_ context.Context, format string, args ...interface{}) {
@@ -58,14 +60,12 @@ func (l *Logger) LogDefault(_ context.Context, format string, args ...interface{
 
 func (l *Logger) LogErrorResponse(ctx context.Context, r *models.Response) {
 	l.m.Update(r)
-	l.LogError(ctx, "Response time:%s, Status:%s", r.ResponseTime, r.Status)
+	l.log(colorError, l.f.Format(ctx, r, "client received non 200 response"))
 }
 
 const timeFormat = "2006-01-02_15-04-05"
 
-func (l *Logger) log(ctx context.Context, color *color.Color, format string, args ...interface{}) {
-	timestamp := timectx.Now(ctx).Format(timeFormat)
-	message := fmt.Sprintf("Timestamp=%s, %s", timestamp, fmt.Sprintf(format, args...))
+func (l *Logger) log(color *color.Color, message string) {
 	_, _ = color.Fprintln(l.w, message)
 }
 
