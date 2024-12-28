@@ -155,20 +155,15 @@ func (m *MockLogger) EXPECT() *MockLoggerMockRecorder {
 }
 
 // LogError mocks base method.
-func (m *MockLogger) LogError(ctx context.Context, format string, args ...any) {
+func (m *MockLogger) LogError(ctx context.Context, err error) {
 	m.ctrl.T.Helper()
-	varargs := []any{ctx, format}
-	for _, a := range args {
-		varargs = append(varargs, a)
-	}
-	m.ctrl.Call(m, "LogError", varargs...)
+	m.ctrl.Call(m, "LogError", ctx, err)
 }
 
 // LogError indicates an expected call of LogError.
-func (mr *MockLoggerMockRecorder) LogError(ctx, format any, args ...any) *gomock.Call {
+func (mr *MockLoggerMockRecorder) LogError(ctx, err any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, format}, args...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogError", reflect.TypeOf((*MockLogger)(nil).LogError), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogError", reflect.TypeOf((*MockLogger)(nil).LogError), ctx, err)
 }
 
 // LogErrorResponse mocks base method.

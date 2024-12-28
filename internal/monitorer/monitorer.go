@@ -40,7 +40,7 @@ type HTTPClient interface {
 
 type Logger interface {
 	LogResponse(ctx context.Context, r *models.Response)
-	LogError(ctx context.Context, format string, args ...interface{})
+	LogError(ctx context.Context, err error)
 	LogErrorResponse(ctx context.Context, r *models.Response)
 	SummarizeResults(ctx context.Context)
 }
@@ -67,7 +67,7 @@ func (m *Monitorer) once(ctx context.Context) error {
 func (m *Monitorer) handleResult(ctx context.Context) error {
 	res, err := m.fetchResult(ctx)
 	if err != nil {
-		m.LogError(ctx, "%w", err)
+		m.LogError(ctx, err)
 		return err
 	}
 	if res.IsOK() {
